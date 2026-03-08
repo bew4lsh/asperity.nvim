@@ -232,10 +232,27 @@ local function parse_inlines(text, styles)
         i = i + 1
       end
 
-    -- Angle brackets
+    -- Angle brackets: check for autolinks first
     elseif ch == "<" then
-      out[#out + 1] = "&lt;"
-      i = i + 1
+      local autolink = text:match("^<(https?://[^%s>]+)>", i)
+      if not autolink then
+        autolink = text:match("^<(mailto:[^%s>]+)>", i)
+      end
+      if not autolink then
+        local email = text:match("^<([%w._%+%-]+@[%w._%-]+%.[%a]+)>", i)
+        if email then
+          autolink = "mailto:" .. email
+        end
+      end
+      if autolink then
+        local display = autolink:gsub("^mailto:", "")
+        local attrs = 'href="' .. escape_html(autolink) .. '"'
+        out[#out + 1] = open_tag("a", styles, attrs) .. escape_html(display) .. "</a>"
+        i = i + #text:match("^<[^>]+>", i)
+      else
+        out[#out + 1] = "&lt;"
+        i = i + 1
+      end
     elseif ch == ">" then
       out[#out + 1] = "&gt;"
       i = i + 1
