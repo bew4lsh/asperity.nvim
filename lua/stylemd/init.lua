@@ -1,5 +1,5 @@
 -- stylemd.init
--- Public API and setup entrypoint for StyleMarkdown.nvim
+-- Public API and setup entrypoint for asperity.nvim
 
 local M = {}
 

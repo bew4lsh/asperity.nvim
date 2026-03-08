@@ -1,4 +1,4 @@
-# StyleMarkdown.nvim
+# asperity.nvim
 
 Neovim plugin that converts markdown to inline-styled HTML and copies it to your system clipboard. Paste directly into Microsoft Teams, Outlook, Gmail, or any rich-text target — no raw markup, no broken formatting.
 
@@ -33,7 +33,7 @@ Two conversion backends are available:
 
 ```lua
 {
-  "your-username/StyleMarkdown.nvim",
+  "your-username/asperity.nvim",
   opts = {},
 }
 ```
@@ -42,7 +42,7 @@ Two conversion backends are available:
 
 ```lua
 use {
-  "your-username/StyleMarkdown.nvim",
+  "your-username/asperity.nvim",
   config = function()
     require("stylemd").setup()
   end,
@@ -53,10 +53,10 @@ use {
 
 ```lua
 -- lazy.nvim
-{ dir = "~/Workspace/StyleMarkdown", opts = {} }
+{ dir = "~/Workspace/asperity.nvim", opts = {} }
 
 -- or manually in init.lua
-vim.opt.runtimepath:prepend("~/Workspace/StyleMarkdown")
+vim.opt.runtimepath:prepend("~/Workspace/asperity.nvim")
 require("stylemd").setup()
 ```
 

@@ -1,4 +1,4 @@
-# StyleMarkdown.nvim — Product Requirements Document
+# asperity.nvim — Product Requirements Document
 
 Neovim Lua plugin that yanks markdown buffer content to the system clipboard as
 inline-styled HTML, ready to paste into Microsoft Teams, Outlook, Gmail, and
@@ -277,7 +277,7 @@ require("stylemd").setup({
 ## 8. File Structure
 
 ```
-StyleMarkdown.nvim/
+asperity.nvim/
 ├── lua/
 │   └── stylemd/
 │       ├── init.lua            -- setup(), public API

@@ -1,5 +1,5 @@
 -- plugin/stylemd.lua
--- Vim command registration for StyleMarkdown.nvim
+-- Vim command registration for asperity.nvim
 -- This file is auto-sourced by Neovim's plugin loader.
 
 if vim.g.loaded_stylemd then

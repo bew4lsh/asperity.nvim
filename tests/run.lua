@@ -1,5 +1,5 @@
 #!/usr/bin/env lua
--- Minimal test runner for StyleMarkdown.
+-- Minimal test runner for asperity.nvim.
 -- Run: lua tests/run.lua
 
 -- Set up package path so we can require stylemd modules
@@ -78,7 +78,7 @@ end
 -- Load and run test files
 ---------------------------------------------------------------------------
 
-print("StyleMarkdown test suite")
+print("asperity.nvim test suite")
 print("========================")
 
 local test_files = {
