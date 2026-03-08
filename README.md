@@ -21,12 +21,17 @@ Two conversion backends are available:
 
 - **Neovim** >= 0.9
 - **[Pandoc](https://pandoc.org/installing.html)** >= 2.11 — only if using `backend = "pandoc"`
-- **Clipboard tool** (one of):
-  - macOS: built-in (`osascript`)
-  - Linux/X11: `xclip`
-  - Wayland: `wl-copy` (from `wl-clipboard`)
-  - WSL: `powershell.exe` (usually available by default)
-  - Windows: `powershell` or `pwsh` (usually available by default)
+- **Clipboard tool** — auto-detected per platform, no configuration needed:
+
+| Platform | Tool | Notes |
+|----------|------|-------|
+| macOS | `osascript` | Built-in. Sets clipboard as native HTML (`NSPasteboardTypeHTML`). |
+| Linux (X11) | `xclip` | Sets `text/html` MIME type. Install: `sudo apt install xclip` |
+| Linux (Wayland) | `wl-copy` | Sets `text/html` MIME type. Install: `sudo apt install wl-clipboard` |
+| WSL | `powershell.exe` | Usually on PATH by default. Uses CF_HTML format for correct rendering in Windows apps. |
+| Windows | `powershell` / `pwsh` | Usually available by default. Uses CF_HTML format via .NET clipboard API. |
+
+Custom clipboard commands can be set via `clipboard_cmd` in setup (see [Configuration](#configuration)).
 
 ## Installation
 
@@ -126,7 +131,7 @@ require("stylemd").setup({
 
 The `backend` option controls how markdown is converted to HTML.
 
-**`native`** (default) — a built-in pure-Lua parser. No external dependencies. Supports GFM features: headings, paragraphs, bold/italic/strikethrough, inline code, links, images, fenced code blocks, ordered/unordered lists, task lists, blockquotes, tables with alignment, and horizontal rules.
+**`native`** (default) — a built-in pure-Lua parser. No external dependencies. Supports GFM features: headings, paragraphs, bold/italic/strikethrough, inline code, links, autolinks (`<url>`), images, fenced code blocks, ordered/unordered lists, task lists, blockquotes, tables with alignment and alternating row styles, and horizontal rules.
 
 ```lua
 require("stylemd").setup({ backend = "native" })
@@ -211,6 +216,31 @@ theme preset          →  merged with style_overrides
 ### Supported elements
 
 `h1` `h2` `h3` `h4` `h5` `h6` `p` `a` `strong` `em` `del` `code` `pre` `blockquote` `ul` `ol` `li` `table` `thead_row` `th` `td` `tr_odd` `tr_even` `hr` `img`
+
+#### Table styling
+
+Tables support fine-grained row styling via these virtual element keys:
+
+| Key | Applied to | Description |
+|-----|-----------|-------------|
+| `table` | `<table>` | Table-level styles (border-collapse, width, margin) |
+| `thead_row` | `<tr>` in `<thead>` | Header row background |
+| `th` | `<th>` | Header cell styles (borders, padding, font-weight) |
+| `td` | `<td>` | Body cell styles (borders, padding) |
+| `tr_odd` | Odd `<tr>` in `<tbody>` | Odd body row background (row 1, 3, 5...) |
+| `tr_even` | Even `<tr>` in `<tbody>` | Even body row background (row 2, 4, 6...) |
+
+Example — zebra-striped table with a dark header:
+
+```lua
+style_overrides = {
+  thead_row = "background:#24292e; color:#fff;",
+  th        = "border:1px solid #444; padding:8px 12px; font-weight:600;",
+  td        = "border:1px solid #dfe2e5; padding:8px 12px;",
+  tr_odd    = "",
+  tr_even   = "background:#f6f8fa;",
+}
+```
 
 ## License
 
