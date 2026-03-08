@@ -23,9 +23,10 @@ Two conversion backends are available:
 - **[Pandoc](https://pandoc.org/installing.html)** >= 2.11 — only if using `backend = "pandoc"`
 - **Clipboard tool** (one of):
   - macOS: built-in (`osascript`)
-  - Linux/X11: `xclip` or `xsel`
+  - Linux/X11: `xclip`
   - Wayland: `wl-copy` (from `wl-clipboard`)
   - WSL: `powershell.exe` (usually available by default)
+  - Windows: `powershell` or `pwsh` (usually available by default)
 
 ## Installation
 
