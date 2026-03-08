@@ -542,24 +542,30 @@ emit_block = function(node, styles)
   elseif t == "table" then
     local parts = { open_tag("table", styles) .. "\n" }
     -- Header row
-    parts[#parts + 1] = "<thead><tr>\n"
+    local thead_row_style = styles.thead_row or ""
+    if thead_row_style ~= "" then
+      parts[#parts + 1] = '<thead><tr style="' .. thead_row_style .. '">\n'
+    else
+      parts[#parts + 1] = "<thead><tr>\n"
+    end
     for col, cell in ipairs(node.head) do
       local align = node.alignments[col]
       local th_style = styles.th or ""
       if align and align ~= "left" then
         th_style = th_style .. " text-align:" .. align .. ";"
       end
-      local th_attrs = nil
-      if th_style ~= "" then
-        th_attrs = nil -- we handle via style
-      end
       parts[#parts + 1] = '<th style="' .. th_style .. '">' .. parse_inlines(cell, styles) .. "</th>\n"
     end
     parts[#parts + 1] = "</tr></thead>\n"
     -- Body rows
     parts[#parts + 1] = "<tbody>\n"
-    for _, row in ipairs(node.rows) do
-      parts[#parts + 1] = "<tr>\n"
+    for row_idx, row in ipairs(node.rows) do
+      local row_style = row_idx % 2 == 0 and (styles.tr_even or "") or (styles.tr_odd or "")
+      if row_style ~= "" then
+        parts[#parts + 1] = '<tr style="' .. row_style .. '">\n'
+      else
+        parts[#parts + 1] = "<tr>\n"
+      end
       for col, cell in ipairs(row) do
         local align = node.alignments[col]
         local td_style = styles.td or ""

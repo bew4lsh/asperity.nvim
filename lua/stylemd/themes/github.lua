@@ -26,8 +26,11 @@ return {
   ol         = "padding-left:2em; margin:0 0 12px;",
   li         = "margin:4px 0;",
   table      = "border-collapse:collapse; margin:0 0 12px; width:100%;",
-  th         = "border:1px solid #dfe2e5; padding:8px 12px; font-weight:600; background:#f6f8fa; text-align:left;",
+  thead_row  = "background:#f6f8fa;",
+  th         = "border:1px solid #dfe2e5; padding:8px 12px; font-weight:600; text-align:left;",
   td         = "border:1px solid #dfe2e5; padding:8px 12px; text-align:left;",
+  tr_odd     = "",
+  tr_even    = "background:#f6f8fa;",
   hr         = "border:none; border-top:2px solid #e1e4e8; margin:24px 0;",
   img        = "max-width:100%;",
 }

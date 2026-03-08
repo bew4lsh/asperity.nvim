@@ -24,8 +24,11 @@ return {
   ol         = "padding-left:2em; margin:0 0 12px;",
   li         = "margin:4px 0;",
   table      = "border-collapse:collapse; margin:0 0 12px;",
+  thead_row  = "",
   th         = "border:1px solid #999; padding:6px 10px; font-weight:600; text-align:left;",
   td         = "border:1px solid #999; padding:6px 10px; text-align:left;",
+  tr_odd     = "",
+  tr_even    = "",
   hr         = "border:none; border-top:1px solid #999; margin:20px 0;",
   img        = "max-width:100%;",
 }

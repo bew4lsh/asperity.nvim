@@ -30,8 +30,11 @@ return {
   ol         = "padding-left:2em; margin-top:0; margin-bottom:10px;",
   li         = "margin-top:2px; margin-bottom:2px;",
   table      = "border-collapse:collapse; margin-top:0; margin-bottom:10px; width:100%;",
-  th         = "border:1px solid #cccccc; padding:6px 10px; font-weight:600; background-color:#f0f0f0; text-align:left;",
+  thead_row  = "background-color:#f0f0f0;",
+  th         = "border:1px solid #cccccc; padding:6px 10px; font-weight:600; text-align:left;",
   td         = "border:1px solid #cccccc; padding:6px 10px; text-align:left;",
+  tr_odd     = "",
+  tr_even    = "background-color:#f9f9f9;",
   hr         = "border:none; border-top:1px solid #cccccc; margin-top:20px; margin-bottom:20px;",
   img        = "max-width:100%;",
 }

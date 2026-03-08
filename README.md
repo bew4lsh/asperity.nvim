@@ -187,8 +187,11 @@ require("stylemd").setup({
     ol         = "padding-left:2em;",
     li         = "margin:4px 0;",
     table      = "border-collapse:collapse;",
+    thead_row  = "background:#f0f0f0;",
     th         = "border:1px solid #ccc; padding:6px 10px; font-weight:600;",
     td         = "border:1px solid #ccc; padding:6px 10px;",
+    tr_odd     = "",
+    tr_even    = "background:#f9f9f9;",
     hr         = "border:none; border-top:1px solid #ccc; margin:20px 0;",
     img        = "max-width:100%;",
   },
@@ -207,7 +210,7 @@ theme preset          →  merged with style_overrides
 
 ### Supported elements
 
-`h1` `h2` `h3` `h4` `h5` `h6` `p` `a` `strong` `em` `del` `code` `pre` `blockquote` `ul` `ol` `li` `table` `th` `td` `hr` `img`
+`h1` `h2` `h3` `h4` `h5` `h6` `p` `a` `strong` `em` `del` `code` `pre` `blockquote` `ul` `ol` `li` `table` `thead_row` `th` `td` `tr_odd` `tr_even` `hr` `img`
 
 ## License
 
