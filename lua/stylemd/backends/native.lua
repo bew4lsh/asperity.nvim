@@ -409,12 +409,14 @@ local function parse_blocks(lines)
           end
 
           local item_lines = { content }
+          local content_indent = indent + 2
           i = i + 1
-          -- Gather continuation / nested lines
-          while i <= n and not lines[i]:match("^%s*$") and not lines[i]:match("^%s*[%-%*%+]%s") do
+          while i <= n and not lines[i]:match("^%s*$") do
             local sub_indent = #(lines[i]:match("^(%s*)"))
             if sub_indent > indent then
-              item_lines[#item_lines + 1] = lines[i]:sub(indent + 3) -- remove base indent
+              item_lines[#item_lines + 1] = lines[i]:sub(content_indent + 1)
+            elseif lines[i]:match("^%s*[%-%*%+]%s") or lines[i]:match("^%s*%d+[.)]%s") then
+              break
             else
               break
             end
@@ -436,13 +438,17 @@ local function parse_blocks(lines)
       while i <= n and (lines[i]:match("^%s*%d+[.)]%s") or lines[i]:match("^%s+%S")) do
         if lines[i]:match("^%s*%d+[.)]%s") then
           local indent = #(lines[i]:match("^(%s*)"))
+          local marker = lines[i]:match("^%s*(%d+[.)])")
           local content = lines[i]:match("^%s*%d+[.)]%s+(.*)")
           local item_lines = { content }
+          local content_indent = indent + #marker + 1
           i = i + 1
-          while i <= n and not lines[i]:match("^%s*$") and not lines[i]:match("^%s*%d+[.)]%s") do
+          while i <= n and not lines[i]:match("^%s*$") do
             local sub_indent = #(lines[i]:match("^(%s*)"))
             if sub_indent > indent then
-              item_lines[#item_lines + 1] = lines[i]:sub(indent + 4)
+              item_lines[#item_lines + 1] = lines[i]:sub(content_indent + 1)
+            elseif lines[i]:match("^%s*[%-%*%+]%s") or lines[i]:match("^%s*%d+[.)]%s") then
+              break
             else
               break
             end
