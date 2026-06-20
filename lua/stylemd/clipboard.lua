@@ -5,6 +5,25 @@ local config = require("stylemd.config")
 
 local M = {}
 
+--- Charset declaration prepended to clipboard HTML.
+-- Without this, receiving apps guess the encoding of the text/html clipboard
+-- flavor, default to a single-byte codepage, and replace unmappable UTF-8
+-- bytes (em-dashes, smart quotes, arrows, …) with "?".
+local CHARSET_META = '<meta http-equiv="Content-Type" content="text/html; charset=utf-8">'
+
+--- Prepend a UTF-8 charset declaration to raw HTML if not already present.
+-- @param html string Raw HTML content
+-- @return string HTML with a leading charset meta
+local function ensure_charset(html)
+  -- Only skip if a <meta ... charset> tag is already present (e.g. pandoc
+  -- --standalone output). A bare "charset" substring in body text must not
+  -- suppress the declaration.
+  if html:lower():find("<meta[^>]-charset") then
+    return html
+  end
+  return CHARSET_META .. html
+end
+
 --- Detected platform. Cached after first call to detect_platform().
 -- One of: "macos", "x11", "wayland", "wsl", "windows", "custom", "unknown"
 M.platform = nil
@@ -35,6 +54,38 @@ local function build_cf_html(html)
 
   local header = header_template:format(start_html, end_html, start_fragment, end_fragment)
   return header .. prefix .. html .. suffix
+end
+
+--- Write content to a temp .html file (binary mode, no newline translation).
+-- @param content string Bytes to write
+-- @return string Path to the temp file
+local function write_tempfile(content)
+  local tmpfile = vim.fn.tempname() .. ".html"
+  local f = io.open(tmpfile, "wb")
+  if f then
+    f:write(content)
+    f:close()
+  end
+  return tmpfile
+end
+
+--- Build a PowerShell script that copies our hand-built CF_HTML to the clipboard.
+-- Reads the file as raw bytes and writes them verbatim under the "HTML Format"
+-- clipboard format. We deliberately avoid Clipboard.SetText(..., Html): that
+-- re-wraps the input in its own CF_HTML envelope (double-wrapping our header)
+-- and re-encodes the string, corrupting non-ASCII. SetDataObject persists the
+-- data after PowerShell exits.
+-- @param path string Path to the CF_HTML file (Windows-style separators)
+-- @return string PowerShell script
+local function clipboard_ps_script(path)
+  return ([[
+    Add-Type -AssemblyName System.Windows.Forms
+    $bytes = [System.IO.File]::ReadAllBytes('%s')
+    $stream = New-Object System.IO.MemoryStream(,$bytes)
+    $data = New-Object System.Windows.Forms.DataObject
+    $data.SetData('HTML Format', $false, $stream)
+    [System.Windows.Forms.Clipboard]::SetDataObject($data, $true)
+  ]]):format(path)
 end
 
 --- Detect the current platform and cache the result.
@@ -141,12 +192,7 @@ local function prepare_dispatch(html, cmd)
   local platform = M.detect_platform()
 
   if platform == "macos" then
-    local tmpfile = vim.fn.tempname() .. ".html"
-    local f = io.open(tmpfile, "wb")
-    if f then
-      f:write(html)
-      f:close()
-    end
+    local tmpfile = write_tempfile(html)
     local applescript = ([[
       use framework "AppKit"
       set htmlData to (current application's NSData's dataWithContentsOfFile:"%s")
@@ -158,35 +204,15 @@ local function prepare_dispatch(html, cmd)
   end
 
   if platform == "wsl" then
-    local cf_html = build_cf_html(html)
-    local tmpfile = vim.fn.tempname() .. ".html"
-    local f = io.open(tmpfile, "wb")
-    if f then
-      f:write(cf_html)
-      f:close()
-    end
+    local tmpfile = write_tempfile(build_cf_html(html))
     local wsl_path = tmpfile:gsub("/", "\\")
-    local ps_script = ([[
-      Add-Type -AssemblyName System.Windows.Forms
-      $html = [System.IO.File]::ReadAllText('%s')
-      [System.Windows.Forms.Clipboard]::SetText($html, [System.Windows.Forms.TextDataFormat]::Html)
-    ]]):format(wsl_path)
+    local ps_script = clipboard_ps_script(wsl_path)
     return { "powershell.exe", "-STA", "-NoProfile", "-Command", ps_script }, nil, tmpfile
   end
 
   if platform == "windows" then
-    local cf_html = build_cf_html(html)
-    local tmpfile = vim.fn.tempname() .. ".html"
-    local f = io.open(tmpfile, "wb")
-    if f then
-      f:write(cf_html)
-      f:close()
-    end
-    local ps_script = ([[
-      Add-Type -AssemblyName System.Windows.Forms
-      $html = [System.IO.File]::ReadAllText('%s')
-      [System.Windows.Forms.Clipboard]::SetText($html, [System.Windows.Forms.TextDataFormat]::Html)
-    ]]):format(tmpfile)
+    local tmpfile = write_tempfile(build_cf_html(html))
+    local ps_script = clipboard_ps_script(tmpfile)
     -- Use -STA for non-pwsh PowerShell (required for WinForms clipboard access)
     local sta_flag = cmd[1] ~= "pwsh" and "-STA" or nil
     local final_cmd = { cmd[1] }
@@ -212,6 +238,8 @@ function M.copy(html)
   if not cmd then
     return false, err
   end
+
+  html = ensure_charset(html)
 
   local final_cmd, stdin_data, tmpfile = prepare_dispatch(html, cmd)
 
