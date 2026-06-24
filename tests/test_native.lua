@@ -295,6 +295,16 @@ describe("Native: Lists", function()
     assert_contains(html, "Bullet")
   end)
 
+  it("nests sub-bullets under a numbered item indented less than the marker width", function()
+    -- "1. " is 3 columns wide, but 2-space-indented sub-bullets must still
+    -- nest rather than collapsing into the parent item as plain text.
+    local html = convert("1. First\n  - sub a\n  - sub b\n2. Second")
+    assert_contains(html, "<ol")
+    assert_contains(html, "<ul", "sub-bullets must nest in a <ul>, not collapse into the item")
+    assert_contains(html, "sub a")
+    assert_contains(html, "sub b")
+  end)
+
   it("renders three levels of nesting", function()
     local html = convert("- L1\n  - L2\n    - L3")
     assert_contains(html, "L1")

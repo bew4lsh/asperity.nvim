@@ -414,7 +414,12 @@ local function parse_blocks(lines)
           while i <= n and not lines[i]:match("^%s*$") do
             local sub_indent = #(lines[i]:match("^(%s*)"))
             if sub_indent > indent then
-              item_lines[#item_lines + 1] = lines[i]:sub(content_indent + 1)
+              -- Strip the parent's indent, but never more whitespace than the
+              -- line actually has — otherwise an under-indented sub-list marker
+              -- (e.g. 2-space nesting under "1. ") gets eaten and the nested
+              -- list collapses into the parent item as plain text.
+              local strip = math.min(content_indent, sub_indent)
+              item_lines[#item_lines + 1] = lines[i]:sub(strip + 1)
             elseif lines[i]:match("^%s*[%-%*%+]%s") or lines[i]:match("^%s*%d+[.)]%s") then
               break
             else
@@ -446,7 +451,12 @@ local function parse_blocks(lines)
           while i <= n and not lines[i]:match("^%s*$") do
             local sub_indent = #(lines[i]:match("^(%s*)"))
             if sub_indent > indent then
-              item_lines[#item_lines + 1] = lines[i]:sub(content_indent + 1)
+              -- Strip the parent's indent, but never more whitespace than the
+              -- line actually has — otherwise an under-indented sub-list marker
+              -- (e.g. 2-space nesting under "1. ") gets eaten and the nested
+              -- list collapses into the parent item as plain text.
+              local strip = math.min(content_indent, sub_indent)
+              item_lines[#item_lines + 1] = lines[i]:sub(strip + 1)
             elseif lines[i]:match("^%s*[%-%*%+]%s") or lines[i]:match("^%s*%d+[.)]%s") then
               break
             else
